@@ -152,7 +152,7 @@ body { padding:10%; margin:0; min-height:100%; position:relative;
   </head>
   <body>
 	<h1>TimeZone and Times Browser</h1>
-	<form style="float:left; width: 35%; border:1px solid gray; border-radius:0.5rem;padding:1rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
+	<form method="GET" style="float:left; width: 35%; border:1px solid gray; border-radius:0.5rem;padding:1rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
 	<select name="location" size="15" multiple>
 	{{range $_, $loc := .AllLocations }}
 	<option value="{{ $loc }}">{{ $loc }}</option>
