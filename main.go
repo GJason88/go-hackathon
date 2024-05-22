@@ -19,10 +19,18 @@ type LocationTime struct {
 }
 
 func baseHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	fmt.Fprint(w, "Hello World!")
 }
 
 func timeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	queries := r.URL.Query()
 
 	locations := getLocationsFromQueries(queries)
@@ -72,11 +80,15 @@ func getCurTime(location *time.Location) string {
 }
 
 func timeTemplateHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	queries := r.URL.Query()
 
 	locations := getLocationsFromQueries(queries)
 	locationTimes := buildLocationTimes(locations)
-	timeTemplate := showTimes(locationTimes, make([]string, 0))
+	timeTemplate := showTimes(locationTimes, getAllLocations())
 
 	fmt.Fprint(w, timeTemplate)
 }
@@ -88,32 +100,33 @@ func getAllLocations() []string {
 		"/usr/share/lib/zoneinfo/",
 		"/usr/lib/locale/TZ/",
 	}
+	var allLocations []string
 	for _, zoneDir := range zoneDirs {
-        ReadFile("", zoneDir)
+        ReadFile("", zoneDir, &allLocations)
     }
+	return allLocations
 }
 
-func ReadFile(path string, zoneDir string, allLocations []string) {
+func ReadFile(path string, zoneDir string, allLocations *[]string) {
     files, _ := os.ReadDir(zoneDir + path)
     for _, f := range files {
         if f.Name() != strings.ToUpper(f.Name()[:1]) + f.Name()[1:] {
             continue
         }
         if f.IsDir() {
-            ReadFile(path + "/" + f.Name(), zoneDir)
+            ReadFile(path + "/" + f.Name(), zoneDir, allLocations)
         } else {
-            append(allLocations, (path + "/" + f.Name())[1:])
+            *allLocations = append(*allLocations, (path + "/" + f.Name())[1:])
         }
     }
 }
 
 func showTimes(timeList []*LocationTime, allLocations []string) string {
 	type PageData struct {
-		timeList *LocationTime
-		location string
+		TimeList []*LocationTime
+		AllLocations []string
 	}
-	
-	timeData := PageData{ timeList, allLocations }
+	timeData := PageData{ TimeList: timeList, AllLocations: allLocations }
 	
 	const html5 = `<!DOCTYPE html>
 <html>
@@ -121,7 +134,7 @@ func showTimes(timeList []*LocationTime, allLocations []string) string {
     <meta charset="UTF-8">
     <title>TimeZone-a-rama</title>
 	<style>
-	html { height:100%; background:#f8f8f8; font-size:16px }
+	html { height:100%; background:#f8f8f8; font-size:21px }
 @font-face {
     font-family:'Source Sans Pro';
     font-weight:400;
@@ -132,26 +145,32 @@ func showTimes(timeList []*LocationTime, allLocations []string) string {
          url('/style/lib/fonts/source-sans-pro/SourceSansPro-Regular.otf') format('opentype'),
          url('/style/lib/fonts/source-sans-pro/SourceSansPro-Regular.ttf') format('truetype');
 }
-body { padding:0; margin:0; min-height:100%; position:relative;
+body { padding:10%; margin:0; min-height:100%; position:relative;
 	background:transparent; font-family:"Source Sans Pro",helvetica,sans-serif }
-		</style>
+			</style>
   </head>
   <body>
 	<h1>TimeZone Browser</h1>
-	<form>
-	<select name="location" size="15">
-	{{range .allLocations }}
-	<option value="{{ . }}">{{ . }}</option>
+	<form style="float:left; width: 35%; border:1px solid gray; border-radius:0.5rem;padding:2rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
+	<select name="location" size="15" multiple>
+	{{range $_, $loc := .AllLocations }}
+	<option value="{{ $loc }}">{{ $loc }}</option>
 	{{else}}
 	<option value="">NOPE</option>
 	{{end}}
 	</select>
+	<input type="submit" name="Update Time Display">
 	</form>
-		{{range .timeLlist}}
-		<div>{{ .Time }} {{ .Location }}</div>
+	<div style="float:left; margin-left:1em; width: 45%; border:1px solid gray; border-radius:0.5rem;padding:2rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
+		{{range $_, $tz := .TimeList}}
+		<div>
+		<h3>{{ $tz.Location }}</h3>
+		<h4 style="padding-left:1em; opacity:0.6;">{{ $tz.Time }}</h4>
+		</div>
 		{{else}}
 		<div><strong>No times!</strong></div>
 		{{end}}
+	</div>
   </body>
 </html>
 `
@@ -166,8 +185,7 @@ body { padding:0; margin:0; min-height:100%; position:relative;
 	check(err)
 
 	b := new(bytes.Buffer)
-//	{ tl => timeList, tz => timeZone }
-	err = t.Execute(b, ARGUMENTS)
+	err = t.Execute(b, timeData)
 	check(err)
 	return b.String()
 }
