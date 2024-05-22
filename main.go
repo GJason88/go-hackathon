@@ -147,11 +147,12 @@ func showTimes(timeList []*LocationTime, allLocations []string) string {
 }
 body { padding:10%; margin:0; min-height:100%; position:relative;
 	background:transparent; font-family:"Source Sans Pro",helvetica,sans-serif }
+	h1,h3,h4 { margin: 0.2rem 0; padding:0 }
 			</style>
   </head>
   <body>
 	<h1>TimeZone Browser</h1>
-	<form style="float:left; width: 35%; border:1px solid gray; border-radius:0.5rem;padding:2rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
+	<form style="float:left; width: 35%; border:1px solid gray; border-radius:0.5rem;padding:1rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
 	<select name="location" size="15" multiple>
 	{{range $_, $loc := .AllLocations }}
 	<option value="{{ $loc }}">{{ $loc }}</option>
@@ -159,9 +160,11 @@ body { padding:10%; margin:0; min-height:100%; position:relative;
 	<option value="">NOPE</option>
 	{{end}}
 	</select>
-	<input type="submit" name="Update Time Display">
+	<div style="padding-left:2rem">
+	<input type="submit" value="Update Time Display">
+	</div>
 	</form>
-	<div style="float:left; margin-left:1em; width: 45%; border:1px solid gray; border-radius:0.5rem;padding:2rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
+	<div style="float:left; margin-left:1em; width: 45%; border:1px solid gray; border-radius:0.5rem;padding:0.5rem 0 1rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
 		{{range $_, $tz := .TimeList}}
 		<div>
 		<h3>{{ $tz.Location }}</h3>
