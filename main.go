@@ -151,7 +151,7 @@ body { padding:10%; margin:0; min-height:100%; position:relative;
 			</style>
   </head>
   <body>
-	<h1>TimeZone Browser</h1>
+	<h1>TimeZone and Times Browser</h1>
 	<form style="float:left; width: 35%; border:1px solid gray; border-radius:0.5rem;padding:1rem 0 2rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
 	<select name="location" size="15" multiple>
 	{{range $_, $loc := .AllLocations }}
@@ -167,7 +167,7 @@ body { padding:10%; margin:0; min-height:100%; position:relative;
 	<div style="float:left; margin-left:1em; width: 45%; border:1px solid gray; border-radius:0.5rem;padding:0.5rem 0 1rem 1em; box-shadow: 0.2rem 0.1rem 1rem 0.2rem rgba(0, 10, 30, 0.2);">
 		{{range $_, $tz := .TimeList}}
 		<div>
-		<h3>{{ $tz.Location }}</h3>
+		<h3 style="font-weight:normal">{{ $tz.Location }}</h3>
 		<h4 style="padding-left:1em; opacity:0.6;">{{ $tz.Time }}</h4>
 		</div>
 		{{else}}
